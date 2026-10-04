@@ -245,9 +245,10 @@ func (e *Endpoint) addNewRedirects(selectorPolicy policy.SelectorPolicy, proxyWa
 	for l4, policySelectorTuple := range selectorPolicy.RedirectFilters() {
 		// Possible listener name for both the proxy ID and the proxyPolicy below.
 		listener := policySelectorTuple.Policy.GetListener()
+		parserType := string(policySelectorTuple.Policy.L7Parser)
 
 		n := 0
-		for proxyID, dstPort := range e.proxyIDs(selectorPolicy, l4, listener, selectors) {
+		for proxyID, dstPort := range e.proxyIDs(selectorPolicy, l4, listener, parserType, selectors) {
 			n++
 			// desiredRedirects starts out empty, so we can use it to check if this
 			// redirect has already been updated on this round.
@@ -330,7 +331,7 @@ func (e *Endpoint) removeOldRedirects(desiredRedirects, realizedRedirects map[st
 		// active or known for that port anymore. We never delete stats
 		// until an endpoint is deleted, so we only set the redirect port
 		// to 0.
-		_, ingress, protocol, port, _, _ := policy.ParseProxyID(id)
+		_, ingress, protocol, port, _, _, _ := policy.ParseProxyID(id)
 		key := policy.ProxyStatsKey(ingress, protocol, port, redirectPort)
 		e.proxyStatisticsMutex.Lock()
 		if proxyStats, ok := e.proxyStatistics[key]; ok {

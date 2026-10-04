@@ -33,7 +33,7 @@ func ProxyStatsKey(ingress bool, protocol string, port, proxyPort uint16) string
 }
 
 // ProxyID returns a unique string to identify a proxy mapping.
-func ProxyID(endpointID uint16, ingress bool, protocol string, port uint16, listener string) string {
+func ProxyID(endpointID uint16, ingress bool, protocol string, port uint16, listener string, parserType string) string {
 	direction := "egress"
 	if ingress {
 		direction = "ingress"
@@ -42,7 +42,7 @@ func ProxyID(endpointID uint16, ingress bool, protocol string, port uint16, list
 	portStr := strconv.FormatUint(uint64(port), 10)
 
 	var str strings.Builder
-	str.Grow(len(epStr) + 1 + len(direction) + 1 + len(protocol) + 1 + len(portStr) + 1 + len(listener))
+	str.Grow(len(epStr) + 1 + len(direction) + 1 + len(protocol) + 1 + len(portStr) + 1 + len(listener) + 1 + len(parserType))
 	str.WriteString(epStr)
 	str.WriteRune(':')
 	str.WriteString(direction)
@@ -52,14 +52,16 @@ func ProxyID(endpointID uint16, ingress bool, protocol string, port uint16, list
 	str.WriteString(portStr)
 	str.WriteRune(':')
 	str.WriteString(listener)
+	str.WriteRune(':')
+	str.WriteString(parserType)
 
 	return str.String()
 }
 
 // ParseProxyID parses a proxy ID returned by ProxyID and returns its components.
-func ParseProxyID(proxyID string) (endpointID uint16, ingress bool, protocol string, port uint16, listener string, err error) {
+func ParseProxyID(proxyID string) (endpointID uint16, ingress bool, protocol string, port uint16, listener string, parserType string, err error) {
 	comps := strings.Split(proxyID, ":")
-	if len(comps) != 5 {
+	if len(comps) != 5 && len(comps) != 6 {
 		err = fmt.Errorf("invalid proxy ID structure: %s", proxyID)
 		return
 	}
@@ -76,5 +78,8 @@ func ParseProxyID(proxyID string) (endpointID uint16, ingress bool, protocol str
 	}
 	port = uint16(l4port)
 	listener = comps[4]
+	if len(comps) == 6 {
+		parserType = comps[5]
+	}
 	return
 }

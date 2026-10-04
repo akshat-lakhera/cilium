@@ -268,8 +268,8 @@ func (p *EndpointPolicy) GetPolicySelectors() SelectorSnapshot {
 // Returns 0 if not found or the filter doesn't require a redirect.
 // Returns an error if the redirect port can not be found.
 // This is called when accumulating incremental map changes, endpoint lock must not be taken.
-func (p *EndpointPolicy) LookupRedirectPort(ingress bool, protocol string, port uint16, listener string) (uint16, error) {
-	proxyID := ProxyID(uint16(p.PolicyOwner.GetID()), ingress, protocol, port, listener)
+func (p *EndpointPolicy) LookupRedirectPort(ingress bool, protocol string, port uint16, listener string, parserType string) (uint16, error) {
+	proxyID := ProxyID(uint16(p.PolicyOwner.GetID()), ingress, protocol, port, listener, parserType)
 	if proxyPort, exists := p.Redirects[proxyID]; exists {
 		return proxyPort, nil
 	}

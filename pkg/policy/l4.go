@@ -631,7 +631,7 @@ func (l4 *L4Filter) makeMapStateEntry(logger *slog.Logger, p *EndpointPolicy, po
 	var proxyPort uint16
 	if currentRule.IsRedirect() {
 		var err error
-		proxyPort, err = p.LookupRedirectPort(l4.Ingress, string(l4.Protocol), port, currentRule.GetListener())
+		proxyPort, err = p.LookupRedirectPort(l4.Ingress, string(l4.Protocol), port, currentRule.GetListener(), string(currentRule.L7Parser))
 		if err != nil {
 			// Skip unrealized redirects; this happens routineously just
 			// before new redirects are realized. Once created, we are called
@@ -1698,7 +1698,7 @@ func (l4Policy *L4Policy) AccumulateMapChanges(logger *slog.Logger, l4 *L4Filter
 
 	lookupProxyPort := func(ep *EndpointPolicy, port uint16) (proxyPort uint16) {
 		var err error
-		proxyPort, err = ep.LookupRedirectPort(l4.Ingress, string(l4.Protocol), port, listener)
+		proxyPort, err = ep.LookupRedirectPort(l4.Ingress, string(l4.Protocol), port, listener, string(perSelectorPolicy.L7Parser))
 		if err != nil {
 			logArgs := []any{
 				logfields.EndpointSelector, cs,

@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"math/rand/v2"
 	"sort"
-	"strconv"
 	"testing"
 
 	"github.com/cilium/hive/hivetest"
@@ -597,11 +596,8 @@ func BenchmarkContainsAllL3L4(b *testing.B) {
 	b.ReportAllocs()
 	for range 1000 {
 		b.StartTimer()
-		proxyID := ProxyID(id, true, "TCP", port, "")
-		if proxyID != strconv.FormatInt(int64(id), 10)+"ingress:TCP:8080:" {
-			b.Failed()
-		}
-		_, _, _, _, _, err := ParseProxyID(proxyID)
+		proxyID := ProxyID(id, true, "TCP", port, "", "")
+		_, _, _, _, _, _, err := ParseProxyID(proxyID)
 		if err != nil {
 			b.Failed()
 		}
